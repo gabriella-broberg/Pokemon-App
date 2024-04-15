@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokedex</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Pokedex</h1>
+    </header>
+    <main>
+        <div class="main-content">
+            <div class="choosePokemon">
+                <div class="selectDiv">
+                    <label for="pokemonSelectOne">Choose first Pokémon: 
+                        <select name="pokemonSelectOne" id="pokemonOne">
+                            <!-- Options filled dynamically from script -->
+                        </select>
+                    </label>
+                    <label for="pokemonSelectTwo">Choose second Pokémon: 
+                        <select name="pokemonSelectTwo" id="pokemonTwo">
+                            <!-- Options filled dynamically from script -->
+                        </select>
+                    </label>
+
+
+                    <button class="chooseBtn" type="button">Load Pokémon Details</button>
+                </div>
+            </div>
+
+
+            <div class="pokemonDiv">
+
+                <div class="pokemonOne-container" id="pokemonOne-container">
+                <div id="pokemonOneDetails">
+                    
+                </div></div>
+
+
+
+
+
+                <div class="pokemonTwo-container" id="pokemonOne-container">
+                <div id="pokemonTwoDetails"></div></div>
+            </div>
+            <div class="compare">
+                <button id="compareBtn" type="button">Compare Pokémon</button>
+                <div class="comparisonResult"></div>
+            </div>
+            <div class="battle">
+                <button id="battleBtn" type="button">Battle Pokémon</button>
+                <div class="battleLog"></div>
+            </div>
+            <div class="infoBox">
+                <h2>Welcome to the Pokedex selector!</h2>
+                <p>Choose Pokémon above to start</p>
+            </div>
+        </main>
+        <script src="main.js"></script>
+        </body>
+        </html>
