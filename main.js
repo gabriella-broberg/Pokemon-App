@@ -159,11 +159,24 @@ document.addEventListener("DOMContentLoaded", function () {
         comparisonDiv.innerHTML = resultSummary;
     }
 
+    
+    document.getElementById('battleBtn').addEventListener('click', () => {
+        const pokemonOneDetails = document.getElementById('pokemonOneDetails').pokemon;
+        const pokemonTwoDetails = document.getElementById('pokemonTwoDetails').pokemon;
+        if (pokemonOneDetails && pokemonTwoDetails) {
+            battlePokemons(pokemonOneDetails, pokemonTwoDetails);
+        } else {
+            console.log("One or both Pokémon details are not loaded.");
+        }
+    });
+    
     function battlePokemons(pokemon1, pokemon2) {
-        const winner = pokemon1.battle(pokemon2);
+        // Simulate a battle outcome. You might want to implement your own logic here.
+        const winner = Math.random() < 0.5 ? pokemon1 : pokemon2;
         const logHTML = `<p>The battle between <strong>${pokemon1.name}</strong> and <strong>${pokemon2.name}</strong> was fierce, but <strong>${winner.name}</strong> emerged victorious!</p>`;
         battleLogDiv.innerHTML = logHTML;
     }
+    
 
     fetchPokemon();
 });
