@@ -1,4 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:ital,wght@0,300;0,400;0,700;1,300&display=swap");
+
+@import url("https://fonts.googleapis.com/css2?family=Gaegu:wght@300;700&family=Press+Start+2P&display=swap");
+
+
 html {
   box-sizing: border-box;
   font-family: "Roboto", sans-serif;
@@ -7,11 +11,86 @@ html {
   margin: 0;
 }
 body {
-  height: 100vh;
+  font-family: 'Roboto', sans-serif;
+/*  background-image: url("img/pokepattern.jpg"); */
+  background-repeat: repeat;
+  background-position: top left; /* Aligns the start of the image at the top left corner */
+  background-size: auto ; 
+  background-color: #ebebeb; /* Lighter background to pop out the content */
+  color: #333; /* Darker text for better readability */
+  margin: 0;
+  padding: 20px;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-
+  min-height: 100vh;
 }
+
+/* Header styling for centered title */
+header {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  font-family: 'Press Start 2P', cursive; /* Pixelated font for headers */
+  color: #cc0000; /* Pokémon red */
+}
+
+
+/* Main content area styling */
+.main-content {
+  width: 95%;
+  max-width: 1200px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Styling for dropdowns and button */
+.selectDiv {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+
+/*button*/
+
+select, button {
+  font-size: 1.3rem;
+  padding: 10px;
+  margin-top: 10px;
+  width: 100%; /* Takes full width of the container */
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+
+
+
+button {
+  font-family: 'Press Start 2P', cursive;
+  background-color: #ffcb05; /* Pikachu yellow */
+  color: #0055ff; /* Pokéball blue */
+  text-transform: uppercase;
+  border: none;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #cc0000; /* Lively hover effect */
+  transform: scale(1.05); /* Slightly enlarges the button on hover */
+}
+
+
+
 
 .pokemonDiv {
   display: flex;          /* Establishes this container as a flex container */
@@ -58,6 +137,8 @@ body {
     padding: 15px;        
   
 }
+
+
 
 
 
@@ -137,21 +218,7 @@ h3 {
 }
 
 
-/*button*/
-button {
-  padding: 10px 0px;
-  border-radius: 20px;
-  border-style: none;
-  font-size: 20px;
-  width: 141px;
-  color: white;
-  margin: 0 5px;
-  background-color: rgb(8, 9, 44);
-  cursor: pointer;
-}
-button:hover {
-  background-color: rgb(40, 42, 86);
-}
+
 #pokemon-list {
   width: 100%;
   font-size: 25px;
@@ -181,6 +248,10 @@ button:hover {
 }
 
 
+
+
+
+
 @media (max-width: 800px) {  /* Adjusts layout for screens narrower than 800px */
   .pokemonDiv {
       flex-direction: column;
@@ -192,6 +263,6 @@ button:hover {
 @media (max-width: 600px) {
   .description-container,
   .text.dex-entry {
-      min-width: 100%; /* Full width on smaller screens */
+      min-width: 80%; /* Full width on smaller screens */
   }
 }
