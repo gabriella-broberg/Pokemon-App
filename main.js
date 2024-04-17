@@ -36,9 +36,28 @@ document.addEventListener("DOMContentLoaded", function () {
             this.stats = stats;
             this.moves = moves;
         }
-
+    
         capitalizeName() {
             return this.name.charAt(0).toUpperCase() + this.name.slice(1);
+        }
+    
+        getHp() {
+            return this.stats.find(stat => stat.name === 'hp').value;
+        }
+    
+        setHp(newHp) {
+            const hpStat = this.stats.find(stat => stat.name === 'hp');
+            hpStat.value = Math.max(0, newHp); // Ensure HP doesn't drop below zero
+        }
+    
+        getRandomMove() {
+            return this.moves.length > 0 ? this.moves[Math.floor(Math.random() * this.moves.length)] : "No move";
+        }
+    
+        calculateDamage(defender) {
+            const attack = this.stats.find(stat => stat.name === 'attack').value + this.stats.find(stat => stat.name === 'special-attack').value;
+            const defense = defender.stats.find(stat => stat.name === 'defense').value + defender.stats.find(stat => stat.name === 'special-defense').value * 0.8;
+            return Math.max(10, attack - defense);
         }
 
         display(container) {
@@ -67,6 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
             this.loadDexEntry(dexEntryId);
         }
+        
 
         async loadDexEntry(dexEntryId) {
             try {
@@ -88,7 +108,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await response.json();
             data.results.forEach((pokemon, index) => {
                 const option = document.createElement("option");
-                option.value = index + 1;  
+                // Ensure the value set here corresponds to the Pokémon ID expected by the API
+                option.value = index + 1; // Assuming Pokémon IDs start at 1 and increment
                 option.textContent = `${index + 1}. ${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}`;
                 pokemonOneSelect.appendChild(option);
                 pokemonTwoSelect.appendChild(option.cloneNode(true));
@@ -97,12 +118,25 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Failed to fetch Pokémon:", error);
         }
     }
+    
+    
 
     async function loadPokemonDetails(pokemonId, container) {
         try {
-            const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
+            // Adding no-cache headers to ensure fresh data is fetched every time
+            const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`, {
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            });
+            if (!response.ok) throw new Error('Network response was not ok.');
+    
             const pokemonData = await response.json();
-            const moves = pokemonData.moves.map(move => move.move.name);
+            
+               // Fetch all moves without slicing the array
+               const moves = pokemonData.moves.map(move => move.move.name);
+    
             const pokemon = new Pokemon(
                 pokemonData.name,
                 pokemonData.sprites.other["official-artwork"].front_default,
@@ -110,14 +144,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 pokemonData.weight / 10,
                 pokemonData.height * 10,
                 pokemonData.stats.map(stat => ({ name: stat.stat.name, value: stat.base_stat })),
-                moves.length > 0 ? moves[0] : "No move"
+                moves
             );
+    
             pokemon.display(container);
-            container.pokemon = pokemon; // Store the pokemon object directly on the element for later retrieval
+            container.pokemon = pokemon; // Store the Pokémon object directly on the element for later retrieval
         } catch (error) {
             console.error("Failed to load Pokémon details:", error);
         }
     }
+    
+    
 
     chooseBtn.addEventListener("click", () => {
         loadPokemonDetails(pokemonOneSelect.value, document.getElementById("pokemonOneDetails"));
@@ -134,48 +171,48 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-function comparePokemons(pokemon1, pokemon2) {
-    let pokemon1Wins = 0;
-    let pokemon2Wins = 0;
-    const comparisonResults = [];
-
-    // Ensure names are capitalized using the existing `capitalizeName` method
-    const pokemon1Name = pokemon1.capitalizeName();
-    const pokemon2Name = pokemon2.capitalizeName();
-
-    comparisonResults.push(compareAttribute('Weight', `${pokemon1.weight} kg`, `${pokemon2.weight} kg`));
-    comparisonResults.push(compareAttribute('Length', `${pokemon1.length} cm`, `${pokemon2.length} cm`));
-    pokemon1.stats.forEach((stat, index) => {
-        if (stat.name.toLowerCase() === 'weight' || stat.name.toLowerCase() === 'length') {
-            // Skip as we've already handled these with units above.
-            return;
+    function comparePokemons(pokemon1, pokemon2) {
+        let pokemon1Wins = 0;
+        let pokemon2Wins = 0;
+        const comparisonResults = [];
+    
+        const pokemon1Name = pokemon1.capitalizeName();
+        const pokemon2Name = pokemon2.capitalizeName();
+    
+        // Adding units directly in the comparison output
+        comparisonResults.push(compareAttribute('Weight', `${pokemon1.weight} kg`, `${pokemon2.weight} kg`));
+        comparisonResults.push(compareAttribute('Length', `${pokemon1.length} cm`, `${pokemon2.length} cm`));
+    
+        // Compare other stats
+        pokemon1.stats.forEach((stat, index) => {
+            if (stat.name.toLowerCase() !== 'weight' && stat.name.toLowerCase() !== 'length') { // Skip weight and length since already handled
+                comparisonResults.push(compareAttribute(stat.name, `${stat.value}`, `${pokemon2.stats[index].value}`)); // Adding units not needed for other stats
+            }
+        });
+    
+        function compareAttribute(attribute, value1, value2) {
+            if (value1 > value2) {
+                pokemon1Wins++;
+                return `<p>${attribute}: <strong style="color: green;">${pokemon1Name} ${value1}</strong> vs ${pokemon2Name} ${value2}</p>`;
+            } else if (value1 < value2) {
+                pokemon2Wins++;
+                return `<p>${attribute}: ${pokemon1Name} ${value1} vs <strong style="color: red;">${pokemon2Name} ${value2}</strong></p>`;
+            } else {
+                return `<p>${attribute}: ${pokemon1Name} ${value1} equals ${pokemon2Name} ${value2}</p>`;
+            }
         }
-        comparisonResults.push(compareAttribute(stat.name, stat.value, pokemon2.stats[index].value));
-    });
-
-    function compareAttribute(attribute, value1, value2) {
-        if (value1 > value2) {
-            pokemon1Wins++;
-            return `<p>${attribute}: <strong style="color: green;">${pokemon1Name} ${value1}</strong> vs ${pokemon2Name} ${value2}</p>`;
-        } else if (value1 < value2) {
-            pokemon2Wins++;
-            return `<p>${attribute}: ${pokemon1Name} ${value1} vs <strong style="color: red;">${pokemon2Name} ${value2}</strong></p>`;
+    
+        let resultSummary = `<h2>Comparison Result</h2>${comparisonResults.join('')}`;
+        if (pokemon1Wins > pokemon2Wins) {
+            resultSummary += `<p><strong>Summary:</strong> ${pokemon1Name} wins in most categories.</p>`;
+        } else if (pokemon1Wins < pokemon2Wins) {
+            resultSummary += `<p><strong>Summary:</strong> ${pokemon2Name} wins in most categories.</p>`;
         } else {
-            return `<p>${attribute}: ${pokemon1Name} ${value1} equals ${pokemon2Name} ${value2}</p>`;
+            resultSummary += `<p><strong>Summary:</strong> It is a tie!</p>`;
         }
+        comparisonDiv.innerHTML = resultSummary;
     }
-
-    let resultSummary = `<h2>Comparison Result</h2>${comparisonResults.join('')}`;
-    if (pokemon1Wins > pokemon2Wins) {
-        resultSummary += `<p><strong>Summary:</strong> ${pokemon1Name} wins in most categories.</p>`;
-    } else if (pokemon1Wins < pokemon2Wins) {
-        resultSummary += `<p><strong>Summary:</strong> ${pokemon2Name} wins in most categories.</p>`;
-    } else {
-        resultSummary += `<p><strong>Summary:</strong> It is a tie!</p>`;
-    }
-    comparisonDiv.innerHTML = resultSummary;
-}
-
+    
 
 
     document.getElementById('battleBtn').addEventListener('click', () => {
@@ -187,54 +224,35 @@ function comparePokemons(pokemon1, pokemon2) {
             console.log("One or both Pokémon details are not loaded.");
         }
     });
+    
 
+    // Battle function
     function battlePokemons(pokemon1, pokemon2) {
-        let attacker, defender;
-        if (pokemon1.stats.find(stat => stat.name === 'speed').value >= pokemon2.stats.find(stat => stat.name === 'speed').value) {
-            attacker = pokemon1;
-            defender = pokemon2;
-        } else {
-            attacker = pokemon2;
-            defender = pokemon1;
-        }
-    console.log(pokemon1);
+        let attacker = pokemon1.stats.find(stat => stat.name === 'speed').value >= pokemon2.stats.find(stat => stat.name === 'speed').value ? pokemon1 : pokemon2;
+        let defender = attacker === pokemon1 ? pokemon2 : pokemon1;
+    
         const battleLog = [];
-        while (getHp(defender) > 0) {
-            // Ensure we are selecting the first move object's name correctly
-            const attackName = attacker.moves.length > 0 ? attacker.moves : "No move available"; // Check this line
-            console.log(attacker.moves);
-            const damage = Math.max(10, calculateDamage(attacker, defender));
+        while (pokemon1.getHp() > 0 && pokemon2.getHp() > 0) {
+            const move = attacker.getRandomMove();
+            const damage = attacker.calculateDamage(defender);
+            defender.setHp(defender.getHp() - damage);
     
-            setHp(defender, getHp(defender) - damage);
+            // Ensure names are capitalized in the battle log
+            battleLog.push(`${attacker.capitalizeName()} used ${move} and did ${damage} damage. ${defender.capitalizeName()} remaining HP: ${defender.getHp()}.`);
     
-            battleLog.push(`${attacker.name} used ${attackName} and did ${damage} damage. ${defender.name} remaining HP: ${getHp(defender)}.`);
-    
-            if (getHp(defender) <= 0) {
-                battleLog.push(`${attacker.name} wins!`);
+            if (defender.getHp() <= 0) {
+                battleLog.push(`${attacker.capitalizeName()} wins!`);
                 break;
             }
     
-            // Swap attacker and defender for the next round
+            // Swap roles
             [attacker, defender] = [defender, attacker];
         }
     
         battleLogDiv.innerHTML = battleLog.join('<br>');
     }
     
-    function getHp(pokemon) {
-        return pokemon.stats.find(stat => stat.name === 'hp').value;
-    }
-    
-    function setHp(pokemon, newHp) {
-        const hpStat = pokemon.stats.find(stat => stat.name === 'hp');
-        hpStat.value = Math.max(0, newHp);
-    }
-    
-    function calculateDamage(attacker, defender) {
-        const attackValue = attacker.stats.find(stat => stat.name === 'attack').value + attacker.stats.find(stat => stat.name === 'special-attack').value;
-        const defenseValue = defender.stats.find(stat => stat.name === 'defense').value + defender.stats.find(stat => stat.name === 'special-defense').value * 0.8;
-        return attackValue - defenseValue;
-    }
+
     
     
 

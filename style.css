@@ -209,10 +209,10 @@ h3 {
 /*Stats container*/
 .stats-container {
   display: grid;
-  grid-template-columns: 1fr; /* Sets the container to have only one column */
-  gap: 10px; /* Provides space between grid rows, adjust as necessary */
-  width: 100%; /* Adjust the width as needed */
-  padding: 10px; /* Adds padding inside the stats container */
+  grid-template-columns: 1fr; 
+  gap: 10px;
+  width: 100%; 
+  padding: 10px; 
 }
 
 
