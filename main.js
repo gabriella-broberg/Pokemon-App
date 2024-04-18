@@ -10,8 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initially hide compare and battle buttons, comparison results, and battle log
     compareBtn.style.display = 'none';
     battleBtn.style.display = 'none';
-    comparisonDiv.style.display = 'none';
-    battleLogDiv.style.display = 'none';
+
         
 
     const typeColors = {
@@ -107,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const dexEntryText = entry ? entry.flavor_text.replace(/[\f\n\r]+/g, " ") : "No entry available";
                 document.getElementById(dexEntryId).textContent = dexEntryText;
             } catch (error) {
-                console.error("Failed to load dex entry:", error);
+               // console.error("Failed to load dex entry:", error);
                 document.getElementById(dexEntryId).textContent = "Failed to load dex entry.";
             }
         }
@@ -126,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 pokemonTwoSelect.appendChild(option.cloneNode(true));
             });
         } catch (error) {
-            console.error("Failed to fetch Pokémon:", error);
+          //  console.error("Failed to fetch Pokémon:", error);
         }
     }
     
@@ -161,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
             pokemon.display(container);
             container.pokemon = pokemon; // Store the Pokémon object directly on the element for later retrieval
         } catch (error) {
-            console.error("Failed to load Pokémon details:", error);
+          //  console.error("Failed to load Pokémon details:", error);
         }
     }
     
@@ -170,6 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
     chooseBtn.addEventListener("click", async () => {
         await loadPokemonDetails(pokemonOneSelect.value, document.getElementById("pokemonOneDetails"));
         await loadPokemonDetails(pokemonTwoSelect.value, document.getElementById("pokemonTwoDetails"));
+   
     
         // Show the compare button only after both Pokemon are loaded
         compareBtn.style.display = 'block';
@@ -186,6 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             console.log("One or both Pokémon details are not loaded.");
         }
+        
     });
     
     function resetPokemonHP(pokemon) {
@@ -194,71 +195,59 @@ document.addEventListener("DOMContentLoaded", function () {
     pokemon.setHp(hpStat.value); // Reset HP to its original value
 }
 
-battleBtn.addEventListener("click", () => {
-    const pokemonOneDetails = document.getElementById('pokemonOneDetails').pokemon;
-    const pokemonTwoDetails = document.getElementById('pokemonTwoDetails').pokemon;
+battleBtn.addEventListener("click", async () => {
+    const pokemonOne = await loadPokemonDetails(pokemonOneSelect.value);
+    const pokemonTwo = await loadPokemonDetails(pokemonTwoSelect.value);
 
-    if (pokemonOneDetails && pokemonTwoDetails) {
-        resetPokemonHP(pokemonOneDetails); // Reset HP before starting a new battle
-        resetPokemonHP(pokemonTwoDetails); // Reset HP before starting a new battle
-
-        battleLogDiv.innerHTML = ''; // Clear previous battle logs before showing new ones
-        battleLogDiv.style.display = 'block'; // Ensure the battle log is visible
-        battlePokemons(pokemonOneDetails, pokemonTwoDetails);
-    } else {
-        console.log("One or both Pokémon details are not loaded.");
-        battleLogDiv.style.display = 'none'; // Hide battle log if the details are not available
-    }
+    battlePokemons(pokemonOne, pokemonTwo);
 });
 
-
-    function comparePokemons(pokemon1, pokemon2) {
+     // Comparison function using table format
+     function comparePokemons(pokemon1, pokemon2) {
         let pokemon1Wins = 0;
         let pokemon2Wins = 0;
-        const comparisonResults = [];
+        let comparisonTable = `<table><tr><th>Stats</th><th>${pokemon1.capitalizeName()}</th><th>${pokemon2.capitalizeName()}</th></tr>`;
     
-        const pokemon1Name = pokemon1.capitalizeName();
-        const pokemon2Name = pokemon2.capitalizeName();
+        // Helper function to format table row
+        function formatTableRow(attribute, value1, value2) {
+            let winnerClass1 = '';
+            let winnerClass2 = '';
+            if (value1 > value2) {
+                winnerClass1 = 'class="winner"';
+                pokemon1Wins++;
+            } else if (value1 < value2) {
+                winnerClass2 = 'class="winner"';
+                pokemon2Wins++;
+            }
+            return `<tr><td>${attribute}</td><td ${winnerClass1}>${value1}</td><td ${winnerClass2}>${value2}</td></tr>`;
+        }
     
-        // Adding units directly in the comparison output
-        comparisonResults.push(compareAttribute('Weight', `${pokemon1.weight} kg`, `${pokemon2.weight} kg`));
-        comparisonResults.push(compareAttribute('Length', `${pokemon1.length} cm`, `${pokemon2.length} cm`));
+        // Adding rows to the comparison table for weight and length
+        comparisonTable += formatTableRow('Weight', `${pokemon1.weight} kg`, `${pokemon2.weight} kg`);
+        comparisonTable += formatTableRow('Length', `${pokemon1.length} cm`, `${pokemon2.length} cm`);
     
-        // Compare other stats
+        // Compare stats
         pokemon1.stats.forEach((stat, index) => {
             const value1 = stat.value;
             const value2 = pokemon2.stats[index].value;
-            comparisonResults.push(compareAttribute(stat.name, `${value1}`, `${value2}`));
+            comparisonTable += formatTableRow(stat.name.toUpperCase(), value1, value2);
         });
     
-        function compareAttribute(attribute, value1, value2) {
-            // Convert values to numbers for comparison
-            let num1 = parseFloat(value1);
-            let num2 = parseFloat(value2);
+        comparisonTable += `</table>`;
     
-            if (num1 > num2) {
-                pokemon1Wins++;
-                return `<p>${attribute}: <strong style="color: green;">${pokemon1Name} ${value1}</strong> vs ${pokemon2Name} ${value2}</p>`;
-            } else if (num1 < num2) {
-                pokemon2Wins++;
-                return `<p>${attribute}: ${pokemon1Name} ${value1} vs <strong style="color: red;">${pokemon2Name} ${value2}</strong></p>`;
-            } else {
-                return `<p>${attribute}: ${pokemon1Name} ${value1} equals ${pokemon2Name} ${value2}</p>`;
-            }
-        }
-    
-        let resultSummary = `<h2>Comparison Result</h2>${comparisonResults.join('')}`;
+        // Summary of which Pokémon wins most categories
         if (pokemon1Wins > pokemon2Wins) {
-            resultSummary += `<p><strong>Summary:</strong> ${pokemon1Name} wins in most categories.</p>`;
-        } else if (pokemon1Wins < pokemon2Wins) {
-            resultSummary += `<p><strong>Summary:</strong> ${pokemon2Name} wins in most categories.</p>`;
+            comparisonTable += `<p>${pokemon1.capitalizeName()} wins in most categories!</p>`;
+        } else if (pokemon2Wins > pokemon1Wins) {
+            comparisonTable += `<p>${pokemon2.capitalizeName()} wins in most categories!</p>`;
         } else {
-            resultSummary += `<p><strong>Summary:</strong> It is a tie!</p>`;
+            comparisonTable += `<p>It's a tie!</p>`;
         }
-        comparisonDiv.innerHTML = resultSummary;
+    
+        comparisonDiv.innerHTML = comparisonTable;
+        comparisonDiv.style.display = 'block';
     }
-  
-
+    
 
     document.getElementById('battleBtn').addEventListener('click', () => {
         const pokemonOneDetails = document.getElementById('pokemonOneDetails').pokemon;
@@ -271,49 +260,51 @@ battleBtn.addEventListener("click", () => {
     });
     
 
-    // Battle function
     function battlePokemons(pokemon1, pokemon2) {
         let attacker = pokemon1.stats.find(stat => stat.name === 'speed').value >= pokemon2.stats.find(stat => stat.name === 'speed').value ? pokemon1 : pokemon2;
         let defender = attacker === pokemon1 ? pokemon2 : pokemon1;
     
         const battleLog = document.getElementById('battleLog');
-        battleLog.innerHTML = ''; // Clear previous battle logs
-    
-        let turn = 0; // Initialize turn counter
+        battleLog.innerHTML = ''; // Clear the battle log at the start of the battle
     
         function performAttack() {
             if (attacker.getHp() <= 0 || defender.getHp() <= 0) {
                 const winner = attacker.getHp() > 0 ? attacker : defender;
-                battleLog.innerHTML += `<strong>${winner.capitalizeName()} wins!</strong>`;
-                return; // Exit the function to prevent further attacks after the battle ends
-            }
-        
-            setTimeout(() => {
-                if (attacker.getHp() > 0 && defender.getHp() > 0) {
-                    const move = attacker.getRandomMove();
-                    const damage = attacker.calculateDamage(defender);
-                    defender.setHp(defender.getHp() - damage);
-        
-                    const logEntry = document.createElement('div');
-                    logEntry.innerHTML = `${attacker.capitalizeName()} used ${move} and did ${damage} damage. ${defender.capitalizeName()} remaining HP: ${defender.getHp()}.`;
-                    logEntry.classList.add('battle-entry'); // Apply CSS animation class
-                    battleLog.appendChild(logEntry);
-        
-                    if (defender.getHp() <= 0) {
-                        battleLog.innerHTML += `<strong>${attacker.capitalizeName()} wins!</strong>`;
-                        return; // Stop further attacks
-                    }
-        
-                    // Swap roles for the next turn
-                    [attacker, defender] = [defender, attacker];
-                    performAttack(); // Recursive call to continue the battle
-                }
-            }, 1000 * turn++); // Delay increases with each turn
-        }
-        
+                
+                // Delay the winner announcement by additional time
+                setTimeout(() => {
+                    battleLog.innerHTML += `<strong>${winner.capitalizeName()} wins!</strong>`;
+                }, 2000); // Delay for 2 seconds before showing the winner
     
-        performAttack(); // Start the battle
+                return; // Stop further execution if a Pokémon's HP is 0
+            }
+    
+            setTimeout(() => {
+                const move = attacker.getRandomMove();
+                const damage = attacker.calculateDamage(defender);
+                defender.setHp(defender.getHp() - damage);
+    
+                battleLog.innerHTML += `<p>${attacker.capitalizeName()} used ${move} and did ${damage} damage. ${defender.capitalizeName()} remaining HP: ${defender.getHp()}.</p>`;
+    
+                if (defender.getHp() <= 0) {
+                    setTimeout(() => {
+                        battleLog.innerHTML += `<strong>${attacker.capitalizeName()} wins!</strong>`;
+                    }, 2000); // Delay for 2 seconds before showing the winner
+                    return; // Stop further execution if a Pokémon's HP reaches 0
+                }
+    
+                // Swap roles for the next attack
+                [attacker, defender] = [defender, attacker];
+    
+                performAttack(); // Continue the battle
+            }, 1500); // Wait 1.5 seconds before performing the next attack
+        }
+    
+        performAttack(); // Initiate the battle
     }
+    
+    
+    
     
     
 
