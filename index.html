@@ -10,23 +10,23 @@
 </head>
 <body>
     <header>
-        <h1>PokéDex</h1>  
+        <h1>PokéDex Battle Arena</h1>  
     </header>
     <main>
         
         <div class="main-content">
             <div class="choosePokemon">
                 <div class="infoBox">
-                    <h2>Welcome to the Pokedex selector!</h2>
+            
                    
                 </div>
                 <div class="selectDiv">
-                    <label for="pokemonSelectOne">Choose first Pokémon: 
+                    <label for="pokemonSelectOne"> 
                         <select name="pokemonSelectOne" id="pokemonOne">
                             <!-- Options filled dynamically from script -->
                         </select>
                     </label>
-                    <label for="pokemonSelectTwo">Choose second Pokémon: 
+                    <label for="pokemonSelectTwo">
                         <select name="pokemonSelectTwo" id="pokemonTwo">
                             <!-- Options filled dynamically from script -->
                         </select>
@@ -42,17 +42,18 @@
 
                 <div class="pokemonOne-container" id="pokemonOneDetails"></div>
 
-
+                <div class="comparisonResult"></div>
+                  <div id="battleLog" class="battle-log"></div>
 
                 <div class="pokemonTwo-container" id="pokemonTwoDetails"></div>
             </div>
             <div class="compare">
                 <button id="compareBtn" type="button">Compare Pokémon</button>
-                <div class="comparisonResult"></div>
+               
             </div>
             <div class="battle">
                 <button id="battleBtn" type="button">Battle Pokémon</button>
-                <div id="battleLog" class="battle-log"></div>
+              
 
                 
             </div>

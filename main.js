@@ -11,28 +11,38 @@ document.addEventListener("DOMContentLoaded", function () {
     compareBtn.style.display = 'none';
     battleBtn.style.display = 'none';
 
-        
+    document.getElementById('compareBtn').addEventListener('click', () => {
+        comparisonDiv.style.display = 'block'; // Show comparison results
+        battleLogDiv.style.display = 'none';   // Hide battle results
+    });
+    
+    document.getElementById('battleBtn').addEventListener('click', () => {
+        comparisonDiv.style.display = 'none';  // Hide comparison results
+        battleLogDiv.style.display = 'block';  // Show battle results
+    });
 
     const typeColors = {
-        normal: "#A8A77A",
-        fire: "#EE8130",
-        water: "#6390F0",
-        electric: "#F7D02C",
-        grass: "#7AC74C",
-        ice: "#96D9D6",
-        fighting: "#C22E28",
-        poison: "#A33EA1",
-        ground: "#E2BF65",
-        flying: "#A98FF3",
-        psychic: "#F95587",
-        bug: "#A6B91A",
-        rock: "#B6A136",
-        ghost: "#735797",
-        dragon: "#6F35FC",
-        dark: "#705746",
-        steel: "#B7B7CE",
-        fairy: "#D685AD",
+        normal: "rgba(168, 167, 122, 0.6)",  // #A8A77A
+        fire: "rgba(238, 129, 48, 0.6)",     // #EE8130
+        water: "rgba(99, 144, 240, 0.6)",    // #6390F0
+        electric: "rgba(247, 208, 44, 0.6)", // #F7D02C
+        grass: "rgba(122, 199, 76, 0.6)",    // #7AC74C
+        ice: "rgba(150, 217, 214, 0.6)",     // #96D9D6
+        fighting: "rgba(194, 46, 40, 0.6)",  // #C22E28
+        poison: "rgba(163, 62, 161, 0.6)",   // #A33EA1
+        ground: "rgba(226, 191, 101, 0.6)",  // #E2BF65
+        flying: "rgba(169, 143, 243, 0.6)",  // #A98FF3
+        psychic: "rgba(249, 85, 135, 0.6)",  // #F95587
+        bug: "rgba(166, 185, 26, 0.6)",      // #A6B91A
+        rock: "rgba(182, 161, 54, 0.6)",     // #B6A136
+        ghost: "rgba(115, 87, 151, 0.6)",    // #735797
+        dragon: "rgba(111, 53, 252, 0.6)",   // #6F35FC
+        dark: "rgba(112, 87, 70, 0.6)",      // #705746
+        steel: "rgba(183, 183, 206, 0.6)",   // #B7B7CE
+        fairy: "rgba(214, 133, 173, 0.6)"    // #D685AD
     };
+    
+    
 
     class Pokemon {
         constructor(name, imageUrl, types, weight, length, stats, moves) {
@@ -116,18 +126,38 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             const response = await fetch("https://pokeapi.co/api/v2/pokemon?limit=151");
             const data = await response.json();
+    
+            // Placeholder for the first dropdown
+            const placeholderOne = document.createElement("option");
+            placeholderOne.textContent = "Choose first Pokémon";
+            placeholderOne.disabled = true;
+            placeholderOne.selected = true;
+    
+            // Placeholder for the second dropdown
+            const placeholderTwo = document.createElement("option");
+            placeholderTwo.textContent = "Choose second Pokémon";
+            placeholderTwo.disabled = true;
+            placeholderTwo.selected = true;
+    
+            // Append placeholders
+            pokemonOneSelect.appendChild(placeholderOne);
+            pokemonTwoSelect.appendChild(placeholderTwo);
+    
             data.results.forEach((pokemon, index) => {
                 const option = document.createElement("option");
-                // Ensure the value set here corresponds to the Pokémon ID expected by the API
+                // Format the index to appear as #001, #002, ... #150, #151
+                let formattedIndex = `#${(index + 1).toString().padStart(3, '0')}.`;
                 option.value = index + 1; // Assuming Pokémon IDs start at 1 and increment
-                option.textContent = `${index + 1}. ${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}`;
+                option.textContent = `${formattedIndex} ${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}`;
                 pokemonOneSelect.appendChild(option);
                 pokemonTwoSelect.appendChild(option.cloneNode(true));
             });
         } catch (error) {
-          //  console.error("Failed to fetch Pokémon:", error);
+            console.error("Failed to fetch Pokémon:", error);
         }
     }
+    
+    
     
     
 
@@ -309,4 +339,9 @@ battleBtn.addEventListener("click", async () => {
     
 
     fetchPokemon();
+
+
+    
 });
+
+

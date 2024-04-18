@@ -15,10 +15,10 @@
 }
 body {
   font-family: 'Play', sans-serif;
-/*  background-image: url("img/pokepattern.jpg"); */
-  background-repeat: repeat;
-  background-position: top left; /* Aligns the start of the image at the top left corner */
-  background-size: auto ; 
+background-image: url("img/battle.jpg"); 
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover ; 
   background-color: #1e1e2f; /* Dark blue base */
   color: #e0e0e0; /* Soft white for text */
   margin: 0;
@@ -33,7 +33,9 @@ body {
 
 .hidden {
   display: none;
+  opacity: 0;  /* Transition to invisible when hidden */
 }
+
 
 /* Header styling for centered title */
 header {
@@ -51,13 +53,29 @@ header h1 {
 
 /* Main content area styling */
 .main-content {
+  min-width: 400px;
   width: 95%;
-  max-width: 870px;
-  background: #29294e; /* Darker blue-purple */
+  max-width: 1250px;
+  background: rgba(41, 41, 78, 0.3); /* Darker blue-purple with transparency */
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); /* More prominent shadow for depth */
+  backdrop-filter: blur(10px); /* Blur effect for glassmorphism */
+  -webkit-backdrop-filter: blur(10px); /* For Safari */
 }
+
+@media (max-width: 800px) {
+  .main-content {
+    padding: 10px; /* Less padding on smaller screens */
+  }
+}
+
+@media (max-width: 600px) {
+  .main-content {
+    padding: 5px; /* Minimal padding on very small screens */
+  }
+}
+
 
 /* Styling for dropdowns and button */
 .selectDiv {
@@ -74,8 +92,8 @@ select, button {
   padding: 10px;
   margin-top: 10px;
   width: 100%; /* Takes full width of the container */
-  border: 4px solid #3e3e5e; /* Darker border for contrast */
-  background-color: #2a2a40; /* Slightly lighter than base for visibility */
+  border: 2px solid #3e3e5e; /* Darker border for contrast */
+  background: rgba(41, 41, 78, 0.8); /* Darker blue-purple with transparency */
   color: #fff; /* White text */
   border-radius: 4px;
   box-sizing: border-box;
@@ -90,17 +108,23 @@ select {
 
 button {
   font-family: 'Press Start 2P', cursive;
-  background-color: #6d28d9; /* Deep purple */
+  background-color: rgba(109, 40, 217, 0.6); /* Deep purple with transparency */
+  color: #fff; /* White text */
+  border: 1px solid rgba(255, 255, 255, 0.25); /* Light white border for slight contrast */
+  border-radius: 4px;
+  padding: 10px;
   text-transform: uppercase;
-  border: none;
+  cursor: pointer;
   transition: transform 0.3s ease, background-color 0.3s ease;
-  
+  backdrop-filter: blur(10px); /* The key to the glass effect */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 button:hover {
-  background-color: #7c4dff; /* Brighter purple on hover */
+  background-color: rgba(124, 77, 255, 0.7); /* Brighter purple on hover */
   transform: scale(1.05); /* Slightly enlarges the button on hover */
 }
+
 
 
 
@@ -182,8 +206,6 @@ img {
 
 /*Description container*/
 
-
-
 .description-container {
   background-color: white;
   color: #1e1e2f;
@@ -203,13 +225,18 @@ img {
 
   margin-bottom: 25px;
 }
+
+
 .type {
+  background-color: var(--typeColor); /* set via JavaScript */
   padding: 5px 10px;
   border-radius: 20px;
   font-size: 20px;
   text-align: center;
   margin: 0px 5px;
+  backdrop-filter: blur(4px); /* optional: if you want extra blurring inside the elements */
 }
+
 
 .text {
   line-height: 22px;
@@ -231,27 +258,8 @@ h3 {
 
 
 
-#pokemon-list {
-  width: 100%;
-  font-size: 25px;
-  padding: 10px 10px;
-  border-radius: 10px;
-  height: 50px;
-  appearance: none;
-}
-
-
-
-
-.comparisonResult h2, #battleLog h2 {
-  text-align: center;
-  font-size: 24px;
-  color: #ffcb05; /* Gold color for headers */
-}
-
-
 .comparisonResult table {
-  width: 100%;
+
   border-collapse: collapse;
   margin: 20px 0;
   overflow: hidden;
@@ -275,12 +283,12 @@ h3 {
 }
 
 .comparisonResult th {
-    background-color: #1e1e2f;
+     background-color: rgba(255, 255, 255, 0.1); 
 }
 
 .winner {
   font-weight: bold;
-  color: green;
+  color: #7AC74C;
 }
 
 
@@ -291,6 +299,55 @@ h3 {
 }
 
 
+.comparisonResult, #battleLog {
+  max-width: 400px;  /* Adjust this value based on your design needs */
+  margin: auto;      /* Center align within their container */
+}
+
+/* Existing Styles */
+.battle-log {
+
+  padding: 20px;
+  margin-top: 20px;
+  color: #ffffff;
+  font-size: 18px;
+  border-radius: 10px;
+
+}
+
+.battle-log p {
+  margin-bottom: 15px; /* Increase space between each paragraph/update */
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.05); /* Optional: adds a subtle background to each update for better readability */
+  border-radius: 8px; /* Optional: rounds the corners of the update backgrounds */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: adds a soft shadow for depth */
+}
+
+/* New Styles for Winner Announcement */
+.battle-log strong {
+  color: #9b51e0; /* Deep purple color */
+  font-size: 2.5rem; /* Larger font size for emphasis */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow for better readability */
+  display: block; /* Block display to center text */
+  text-align: center; /* Center alignment */
+  margin: 20px 0; /* Space above and below */
+  animation: popEffect 0.5s ease-out; /* Animation for pop effect */
+}
+
+/* Keyframes for pop effect */
+@keyframes popEffect {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 
 
 
